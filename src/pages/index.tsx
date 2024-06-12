@@ -41,6 +41,40 @@ const Home = () => {
 
   const { blackCount, whiteCount } = countStones(board);
 
+  const isValidMove = (board: number[][], x: number, y: number, color: number) => {
+    if (board[y][x] !== 0) return false;
+    for (const dir of directions) {
+      let x_a = x + dir[0];
+      let y_a = y + dir[1];
+      let hasOpponentStone = false;
+
+      while (
+        x_a >= 0 &&
+        x_a < 8 &&
+        y_a >= 0 &&
+        y_a < 8 &&
+        board[y_a][x_a] !== 0 &&
+        board[y_a][x_a] !== color
+      ) {
+        x_a += dir[0];
+        y_a += dir[1];
+        hasOpponentStone = true;
+      }
+
+      if (
+        x_a >= 0 &&
+        x_a < 8 &&
+        y_a >= 0 &&
+        y_a < 8 &&
+        board[y_a][x_a] === color &&
+        hasOpponentStone
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const clikHandler = (x: number, y: number) => {
     console.log(x, y);
     const newBoard = structuredClone(board);
@@ -86,10 +120,16 @@ const Home = () => {
           黒: {blackCount} 白: {whiteCount}
         </span>
       </div>
+      <div>現在のターン: {turnColor === 1 ? '黒' : '白'}</div>
       <div className={styles.boardStyle}>
         {board.map((row, y) =>
           row.map((color, x) => (
-            <div className={styles.cellStyle} key={`${x}-${y}`} onClick={() => clikHandler(x, y)}>
+            <div
+              className={styles.cellStyle}
+              key={`${x}-${y}`}
+              onClick={() => clikHandler(x, y)}
+              style={{ background: isValidMove(board, x, y, turnColor) ? 'yellow' : 'green' }}
+            >
               {color !== 0 && (
                 <div
                   className={styles.cellStone}
